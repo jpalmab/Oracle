@@ -1,0 +1,73 @@
+--Un trigger es una porción de código que se ejecuta tras un evento
+--del DML.
+--Está entre el BEGIN y el END, se ejecuta un instante antes o después de que ocurra el evento del DML 
+--Los eventos del DML - INSERT, UPDATE, DELET, SELECT 
+
+--------------------PEGAR UN TRIGGER A UNA VISTA - ----------------
+--pregunta de Parcial 
+
+--Por qué el DML no sirve en vista?
+-------------------------------------------------------------------
+--Nacen 2 variables cuando se aplican los triggers en tablas. Son de tipo ROWTYPE.
+-- :NEW  -> CREO algo
+-- :OLD  -> BORRO 
+
+-------------------------------------------------------------------
+-- creo las tablas de la base de datos
+CREATE table cuenta
+(
+  cod_cuenta int primary key,
+  nom_cuenta varchar(30),
+  sal_cuenta int
+);
+
+CREATE table tipo_movimiento
+(
+  cod_t_movimiento int primary key,
+  nom_t_movimiento varchar(30)
+);
+
+CREATE table movimiento
+(
+  cod_movimiento int primary key, 
+  cod_cuenta int,
+  cod_t_movimiento int,
+  val_movimiento int
+);
+
+-- realizo las relaciones entre las tablas de las bases de datos
+
+ALTER TABLE MOVIMIENTO add constraint M_C_FK FOREIGN KEY(cod_cuenta) references CUENTA(cod_cuenta);
+
+ALTER TABLE MOVIMIENTO add constraint M_TM_FK FOREIGN KEY(cod_t_movimiento) references TIPO_MOVIMIENTO(cod_t_movimiento);
+
+-- inserto datos en la base de datos.
+insert into cuenta values(1,'Carolina C.', 0);
+insert into cuenta values(2,'Paola T.', 0);
+insert into cuenta values(3,'Jessica C.', 0);
+insert into cuenta values(4,'Laura Acuña.', 0);
+
+insert into tipo_movimiento values(1,'Consignación');
+insert into tipo_movimiento values(2,'Retiro');
+insert into tipo_movimiento values(3,'Consulta');
+
+
+-- trigger para la tabla movimiento
+CREATE OR REPLACE TRIGGER AI_MOVIMIENTO
+AFTER INSERT ON MOVIMIENTO
+ FOR EACH ROW 
+  BEGIN
+   IF(:NEW.cod_t_movimiento = 1) then 
+     update CUENTA
+     set sal_cuenta = sal_cuenta + :NEW.val_movimiento
+     WHERE
+       cuenta.cod_cuenta = :NEW.cod_cuenta;
+   END IF;
+  END;
+
+-- inserto datos en la tabla movimiento
+insert into movimiento values(1,1,1,3000000);
+insert into movimiento values(2,1,1,2000000);
+insert into movimiento values(3,2,1,2000000);
+insert into movimiento values(4,2,1,2000000);
+

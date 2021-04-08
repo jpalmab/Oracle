@@ -1,0 +1,206 @@
+-- creo las tablas de las bases de datos
+
+CREATE TABLE CIUDAD
+(
+  cod_ciudad int primary key,
+  nom_ciudad varchar(30)
+);
+
+CREATE TABLE VENDEDOR
+(
+ cod_vendedor int primary key,
+ nom_vendedor varchar(30)
+);
+
+CREATE TABLE F_PAGO
+(
+ cod_f_pago int primary key,
+ nom_f_pago varchar(30)
+);
+
+CREATE TABLE CLIENTE
+(
+ cod_cliente int primary key,
+ nom_cliente varchar(30),
+ cod_ciudad int,
+ cod_vendedor int,
+ cod_f_pago int
+);
+
+CREATE TABLE FACTURA
+(
+ cod_factura int primary key,
+ cod_cliente int,
+ val_factura int
+);
+
+-- realizo las relaciones entre las tablas
+
+ALTER TABLE CLIENTE add constraint CI_CL_FK FOREIGN KEY(cod_ciudad) references CIUDAD(cod_ciudad);
+
+ALTER TABLE CLIENTE add constraint CI_V_FK FOREIGN KEY(cod_vendedor) references VENDEDOR(cod_vendedor);
+
+ALTER TABLE CLIENTE add constraint CL_FP_FK FOREIGN KEY(cod_f_pago) references F_PAGO(cod_f_pago);
+
+ALTER TABLE FACTURA add constraint F_CL_FK FOREIGN KEY(cod_cliente) references CLIENTE(cod_cliente);
+
+
+-- agrego la información a la base de datos
+insert into ciudad(cod_ciudad, nom_ciudad) values(1,'Bogotá');
+insert into ciudad(cod_ciudad, nom_ciudad) values(2,'Medellin');
+insert into ciudad(cod_ciudad, nom_ciudad) values(3,'Cali');
+
+insert into vendedor values(1,'Sandra');
+insert into vendedor values(2,'Claudia');
+insert into vendedor values(3,'Yamile');
+
+
+insert into F_PAGO values(1,'Credito');
+insert into F_PAGO values(2,'Contado');
+
+insert into CLIENTE values(1,'Juan',1, 3, 1);
+insert into CLIENTE values(2,'José',2, 3, 1);
+insert into CLIENTE values(3,'Jaime',3, 2, 2);
+insert into CLIENTE values(4,'Julio',3, 2, 2);
+insert into CLIENTE values(5,'Jacinto',2, 1, 1);
+
+insert into FACTURA values(1, 1, 1000);
+insert into FACTURA values(2, 2, 2000);
+insert into FACTURA values(3, 3, 3000);
+insert into FACTURA values(4, 4, 4000);
+insert into FACTURA values(5, 5, 5000);
+insert into FACTURA values(6, 1, 1000);
+insert into FACTURA values(7, 2, 2000);
+insert into FACTURA values(8, 3, 3000);
+insert into FACTURA values(9, 4, 4000);
+insert into FACTURA values(10, 5, 5000);
+insert into FACTURA values(11, 1, 1000);
+insert into FACTURA values(12, 2, 2000);
+insert into FACTURA values(13, 3, 3000);
+insert into FACTURA values(14, 4, 4000);
+insert into FACTURA values(15, 5, 5000);
+insert into FACTURA values(16, 1, 1000);
+
+-- CURSORES EN LAS BASES DE DATOS
+--LOS CURSORES SON VARIABLES Y SE USAN CON SELECT EN EL INTERIOR DE UN PROGRAMA.
+--HAY EXPLICITOS E IMPLICITOS 
+
+-- Procedimiento de ventas por vendedor
+CREATE OR REPLACE PROCEDURE VXV
+IS
+ CURSOR CURSOR_VXV
+ IS
+  select nom_vendedor, sum(val_factura) total 
+  FROM 
+     VENDEDOR, CLIENTE, FACTURA
+  WHERE
+     VENDEDOR.cod_vendedor = CLIENTE.cod_vendedor AND
+     CLIENTE.cod_cliente = FACTURA.cod_cliente
+     group by nom_vendedor;
+ REGISTRO CURSOR_VXV%ROWTYPE;
+ BEGIN 
+  OPEN CURSOR_VXV;
+   LOOP
+     FETCH CURSOR_VXV INTO REGISTRO;
+     EXIT WHEN CURSOR_VXV%NOTFOUND;
+     imprimir(REGISTRO.nom_vendedor || ' -- > ' || REGISTRO.total);
+   END LOOP;
+  CLOSE CURSOR_VXV;
+
+ END;
+
+BEGIN
+ VXV;
+END;
+
+-- procedimiento de ventas por ciudad
+
+CREATE OR REPLACE PROCEDURE VXCI
+IS
+ CURSOR CURSOR_VXCI
+ IS
+  select nom_ciudad, sum(val_factura) total 
+  FROM 
+     CIUDAD, CLIENTE, FACTURA
+  WHERE
+     CIUDAD.cod_ciudad = CLIENTE.cod_ciudad  AND
+     CLIENTE.cod_cliente = FACTURA.cod_cliente
+     group by nom_ciudad;
+ REGISTRO CURSOR_VXCI%ROWTYPE;
+ BEGIN 
+  OPEN CURSOR_VXCI;
+   LOOP
+     FETCH CURSOR_VXCI INTO REGISTRO;
+     EXIT WHEN CURSOR_VXCI%NOTFOUND;
+     imprimir(REGISTRO.nom_ciudad || ' -- > ' || REGISTRO.total);
+   END LOOP;
+  CLOSE CURSOR_VXCI;
+
+ END;
+
+BEGIN 
+ VXCI;
+END;
+
+-- procedimiento de ventas por cliente
+
+CREATE OR REPLACE PROCEDURE VXCLI
+IS
+ CURSOR CURSOR_VXCLI
+ IS
+  select nom_cliente, sum(val_factura) total 
+  FROM 
+     CLIENTE, FACTURA
+  WHERE
+     CLIENTE.cod_cliente = FACTURA.cod_cliente
+     group by nom_cliente;
+ REGISTRO CURSOR_VXCLI%ROWTYPE;
+ BEGIN 
+  OPEN CURSOR_VXCLI;
+   LOOP
+     FETCH CURSOR_VXCLI INTO REGISTRO;
+     EXIT WHEN CURSOR_VXCLI%NOTFOUND;
+     imprimir(REGISTRO.nom_cliente || ' -- > ' || REGISTRO.total);
+   END LOOP;
+  CLOSE CURSOR_VXCLI;
+
+ END;
+
+BEGIN
+ VXCLI;
+END;
+
+-- procedimiento de ventas por forma de pago 
+
+CREATE OR REPLACE PROCEDURE VXFP
+IS
+ CURSOR CURSOR_VXFP
+ IS
+  select nom_f_pago, sum(val_factura) total 
+  FROM 
+     F_PAGO, CLIENTE, FACTURA
+  WHERE
+     F_PAGO.cod_f_pago = CLIENTE.cod_f_pago AND
+     CLIENTE.cod_cliente = FACTURA.cod_cliente
+     group by nom_f_pago;
+ REGISTRO CURSOR_VXFP%ROWTYPE;
+ BEGIN 
+  OPEN CURSOR_VXFP;
+   LOOP
+     FETCH CURSOR_VXFP INTO REGISTRO;
+     EXIT WHEN CURSOR_VXFP%NOTFOUND;
+     imprimir(REGISTRO.nom_f_pago || ' -- > ' || REGISTRO.total);
+   END LOOP;
+  CLOSE CURSOR_VXFP;
+
+ END;
+
+-- EJECUTO EL PROCEDIMIENTO
+BEGIN
+ VXFP;
+END;
+
+
+
+
+
