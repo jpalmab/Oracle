@@ -1,3 +1,4 @@
+--JOHAN PALMA BURGOS
 -- creo las tablas de las bases de datos
 
 CREATE TABLE CIUDAD
@@ -45,8 +46,8 @@ ALTER TABLE CLIENTE add constraint CL_FP_FK FOREIGN KEY(cod_f_pago) references F
 ALTER TABLE FACTURA add constraint F_CL_FK FOREIGN KEY(cod_cliente) references CLIENTE(cod_cliente);
 
 
--- agrego la informaciÛn a la base de datos
-insert into ciudad(cod_ciudad, nom_ciudad) values(1,'Bogot·');
+-- agrego la informaci√≥n a la base de datos
+insert into ciudad(cod_ciudad, nom_ciudad) values(1,'Bogot√°');
 insert into ciudad(cod_ciudad, nom_ciudad) values(2,'Medellin');
 insert into ciudad(cod_ciudad, nom_ciudad) values(3,'Cali');
 
@@ -59,7 +60,7 @@ insert into F_PAGO values(1,'Credito');
 insert into F_PAGO values(2,'Contado');
 
 insert into CLIENTE values(1,'Juan',1, 3, 1);
-insert into CLIENTE values(2,'JosÈ',2, 3, 1);
+insert into CLIENTE values(2,'Jos√©',2, 3, 1);
 insert into CLIENTE values(3,'Jaime',3, 2, 2);
 insert into CLIENTE values(4,'Julio',3, 2, 2);
 insert into CLIENTE values(5,'Jacinto',2, 1, 1);
